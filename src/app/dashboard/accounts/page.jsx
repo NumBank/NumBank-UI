@@ -1,8 +1,8 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import axios from "axios";
 import styles from "@/app/ui/dashboard/products/addProduct/addProduct.module.css";
-import { get } from "react-hook-form";
+import { getAllAccounts, sendAccountDataToBackend } from "../../../utils/api/data";
 
 const AccountForm = () => {
   const [accounts, setAccounts] = useState([]);
@@ -15,46 +15,19 @@ const AccountForm = () => {
     debt: false,
   });
 
-  const getAllAccounts = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/accounts");
-      setAccounts(response.data);
-      console.log(accounts);
-    } catch (error) {
-      console.error("An error backend:", error);
-    }
-  };
-
   useEffect(() => {
-    getAllAccounts();
+    getAllAccounts().then((data) => {
+      setAccounts(data);
+    });
   }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    const newValue = type === "checkbox" ? checked : value;
+    const newValue = value;
     setFormData((prevState) => ({
       ...prevState,
       [name]: newValue,
     }));
-  };
-
-  const sendFormDataToBackend = async (formData) => {
-    const dataToSend = [];
-    dataToSend.push(formData);
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/accounts",
-        dataToSend
-      );
-      console.log(response.data);
-      setAccounts((prevAccounts) => [...prevAccounts, response.data]);
-    } catch (error) {
-      console.error(
-        "An error occurred while sending the data to the backend:",
-        error
-      );
-      alert("An error occurred while sending the data to the backend");
-    }
   };
 
   const handleSubmit = (e) => {
@@ -73,14 +46,13 @@ const AccountForm = () => {
       return;
     }
 
-    sendFormDataToBackend(formData);
+    sendAccountDataToBackend(formData);
     setFormData({
       customerFirstName: "",
       customerLastName: "",
       birthdate: "",
       netSalary: "",
       number: "",
-      debt: false,
     });
   };
 
@@ -132,28 +104,27 @@ const AccountForm = () => {
             onChange={handleChange}
             required
           />
-          <div>
-            <label htmlFor="debt">Debt:</label>
-            <input
-              type="checkbox"
-              id="debt"
-              name="debt"
-              checked={formData.debt}
-              onChange={handleChange}
-            />
-          </div>
           <button type="submit">Add</button>
         </form>
       </div>
       <div className={styles.container}>
         <h2 className={styles.title}>Accounts List:</h2>
         <table className={styles.table}>
+          <thead>
+            <tr>
+              <td><h1>Client name</h1></td>
+              <td><h1>Birthdate</h1></td>
+              <td><h1>Net Salary</h1></td>
+              <td><h1>Account Number</h1></td>
+              <td><h1>Debt</h1></td>
+            </tr>
+          </thead>
           <tbody>
             {accounts.map((account, index) => (
               <tr key={index}>
-                <td>Client name: {account.customerFirstName} {account.customerLastName}</td>
-                <td>Birth Date: {account.birthdate}</td>
-                <td>Net Salary: {account.netSalary}</td>
+                <td>{account.customerFirstName} {account.customerLastName}</td>
+                <td>{account.birthdate}</td>
+                <td>{account.netSalary}</td>
                 <td>{account.number}</td>
                 <td>{account.debt ? "Yes" : "No"}</td>
               </tr>

@@ -26,8 +26,8 @@ const menuItems = [
         icon: <MdSupervisedUserCircle />,
       },
       {
-        title: "Withdrawal",
-        path: "/dashboard/withdrawal",
+        title: "Transaction",
+        path: "/dashboard/transaction",
         icon: <BiMoneyWithdraw />,
       },
       {
